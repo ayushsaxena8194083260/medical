@@ -1,5 +1,5 @@
 // controllers/medicineController.js
-const Medicine = require("../models/Medicine");
+const Medicine = require("../models/medicine");
 
 exports.getMedicines = async (req, res) => {
   try {
