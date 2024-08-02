@@ -4,7 +4,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
 exports.register = async (req, res) => {
-  const { name, email, password, role } = req.body;
+  const { name, email, password, role,city,address,pincode,shopName } = req.body;
 
   try {
     let user = await User.findOne({ email });
@@ -17,6 +17,10 @@ exports.register = async (req, res) => {
       email,
       password,
       role,
+      city,
+      address,
+      pincode,
+      shopName
     });
 
     await user.save();
@@ -28,7 +32,7 @@ exports.register = async (req, res) => {
       },
     };
 
-    jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1h' }, (err, token) => {
+    jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '24h' }, (err, token) => {
       if (err) throw err;
       res.json({ token });
     });
@@ -59,7 +63,7 @@ exports.login = async (req, res) => {
       },
     };
 
-    jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1h' }, (err, token) => {
+    jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '24h' }, (err, token) => {
       if (err) throw err;
       res.json({ token });
     });

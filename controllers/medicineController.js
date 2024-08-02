@@ -1,4 +1,5 @@
 // controllers/medicineController.js
+const inventory = require("../models/inventory");
 const Medicine = require("../models/medicine");
 
 exports.getMedicines = async (req, res) => {
@@ -25,15 +26,24 @@ exports.getMedicineById = async (req, res) => {
 };
 
 exports.createMedicine = async (req, res) => {
-  const { name, decription, manufacturer, expirationDate, price, stock  } = req.body;
+  const { name, decription, manufacturer, expirationDate, price, stock } = req.body;
   const image = req.file ? req.file.path : '';
   try {
     const newMedicine = new Medicine({
-      name, decription, manufacturer, expirationDate, price, stock,image
+      name, decription, manufacturer, expirationDate, price, stock, image
     });
 
     const medicine = await newMedicine.save();
-    res.json(medicine);
+
+    // Add to inventory
+    const newInventory = new inventory({
+      productId: medicine._id,
+      stock,
+      threshold: 10,
+    });
+    await newInventory.save();
+
+    res.json({medicine,inventory: newInventory});
   } catch (err) {
     console.error(err.message);
     res.status(500).send("Server error");
@@ -84,4 +94,33 @@ exports.deleteMedicine = async (req, res) => {
     res.status(500).send("Server error");
   }
 };
+
+// Increment stock stock
+exports.incrementStock = async (req, res) => {
+  const { productId } = req.params;
+  const { stock } = req.body;
+
+  if (!Number.isInteger(stock)) {
+    return res.status(400).json({ msg: 'Quantity must be an integer' });
+  }
+
+  try {
+    // Find and increment the product stock
+    let product = await Medicine.findByIdAndUpdate(
+      productId,
+      { $inc: { stock: stock } },
+      { new: true }
+    );
+
+    if (!product) {
+      return res.status(404).json({ msg: 'Medicine not found' });
+    }
+
+    res.json(product);
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Server error');
+  }
+};
+
 
