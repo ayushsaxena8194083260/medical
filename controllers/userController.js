@@ -2,6 +2,17 @@
 const User = require("../models/user");
 const { addToBlacklist } = require("../utils/tokenBlacklist");
 
+
+exports.getAllUsers = async (req, res) => {
+  try {
+    const users = await User.find().select('-password');
+    res.json(users);
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Server error');
+  }
+};
+
 exports.getUserDetails = async (req, res) => {
   try {
     const user = await User.findById(req.params.id).select("-password");

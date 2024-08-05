@@ -9,12 +9,14 @@ const {
   deleteUser,
   logout,
   changePassword,
+  getAllUsers,
 } = require('../controllers/userController');
 
 router.get('/logout', authMiddleware, logout);
-router.get('/user/:id', authMiddleware, roleMiddleware(['admin', 'user']), getUserDetails);
-router.put('/user/:id', authMiddleware, roleMiddleware(['admin', 'user']), updateUserDetails);
-router.delete('/user/:id', authMiddleware, roleMiddleware(['admin']), deleteUser);
+router.get('/', authMiddleware, roleMiddleware(['admin']), getAllUsers);
+router.get('/:id', authMiddleware, roleMiddleware(['admin', 'user']), getUserDetails);
+router.put('/:id', authMiddleware, roleMiddleware(['admin', 'user']), updateUserDetails);
+router.delete('/:id', authMiddleware, roleMiddleware(['admin']), deleteUser);
 router.put('/change-password', authMiddleware, changePassword);
 
 module.exports = router;
