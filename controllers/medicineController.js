@@ -26,8 +26,7 @@ exports.getMedicineById = async (req, res) => {
 };
 
 exports.createMedicine = async (req, res) => {
-  const { name, decription, manufacturer, expirationDate, price, stock } = req.body;
-  const image = req.file ? req.file.path : '';
+  const { name, decription, manufacturer, expirationDate, price, stock,image } = req.body;
   try {
     const newMedicine = new Medicine({
       name, decription, manufacturer, expirationDate, price, stock, image
