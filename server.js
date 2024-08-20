@@ -7,6 +7,7 @@ const medicineRoutes = require('./routes/medicineRoutes');
 const orderRoutes = require('./routes/orderRoutes');
 const inventoryRoutes = require('./routes/inventoryRoutes');
 const cartRoutes = require('./routes/cartRoutes');
+const cors = require('cors');  // Import CORS
 
 const dotenv = require('dotenv');
 
@@ -14,9 +15,14 @@ dotenv.config();
 
 const app = express();
 
+app.use(cors({
+    origin: 'http://localhost:3000', // Allow requests from your React app
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    credentials: true, // Allow cookies to be sent
+  }))
+
 // Connect to the database
 connectDB();
-
 // Init middleware
 app.use(express.json({ extended: false }));
 
