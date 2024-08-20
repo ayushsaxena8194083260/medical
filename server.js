@@ -8,6 +8,7 @@ const orderRoutes = require('./routes/orderRoutes');
 const inventoryRoutes = require('./routes/inventoryRoutes');
 const cartRoutes = require('./routes/cartRoutes');
 const cors = require('cors');  // Import CORS
+const allowedOrigins = ['http://localhost:3000', 'https://medical-api-git-main-ayush-saxenas-projects-03883bbf.vercel.app'];
 
 const dotenv = require('dotenv');
 
@@ -16,10 +17,16 @@ dotenv.config();
 const app = express();
 
 app.use(cors({
-    origin: 'http://localhost:3000', // Allow requests from your React app
+    origin: function (origin, callback) {
+      if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+        callback(null, true);
+      } else {
+        callback(new Error('Not allowed by CORS'));
+      }
+    },
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-    credentials: true, // Allow cookies to be sent
-  }))
+    credentials: true,
+  }));
 
 // Connect to the database
 connectDB();
