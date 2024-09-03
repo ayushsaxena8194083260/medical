@@ -12,8 +12,8 @@ const {
   incrementStock,
 } = require('../controllers/medicineController');
 
-router.get('/', authMiddleware, getMedicines);
-router.get('/:id', authMiddleware, getMedicineById);
+router.get('/', getMedicines);
+router.get('/:id', getMedicineById);
 router.post('/', authMiddleware, roleMiddleware(['admin']), createMedicine);
 router.put('/:id', authMiddleware, roleMiddleware(['admin']), updateMedicine);
 router.delete('/:id', authMiddleware, roleMiddleware(['admin']), deleteMedicine);

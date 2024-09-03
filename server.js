@@ -1,4 +1,3 @@
-// server.js
 const express = require('express');
 const connectDB = require('./db');
 const authRoutes = require('./routes/authRoutes');
@@ -8,34 +7,35 @@ const orderRoutes = require('./routes/orderRoutes');
 const inventoryRoutes = require('./routes/inventoryRoutes');
 const cartRoutes = require('./routes/cartRoutes');
 const cors = require('cors');  // Import CORS
-const allowedOrigins = ['http://localhost:3000', 'https://medical-api-git-main-ayush-saxenas-projects-03883bbf.vercel.app'];
-
 const dotenv = require('dotenv');
 
 dotenv.config();
 
 const app = express();
 
-// app.use(cors({
-//     origin: function (origin, callback) {
-//       if (!origin || allowedOrigins.indexOf(origin) !== -1) {
-//         callback(null, true);
-//       } else {
-//         callback(new Error('Not allowed by CORS'));
-//       }
-//     },
-//     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-//     credentials: true,
-//   }));
+// List of allowed origins
+const allowedOrigins = [
+    'http://localhost:5173', // Your React app's origin
+    'http://localhost:3000',
+    'https://medical-api-git-main-ayush-saxenas-projects-03883bbf.vercel.app'
+];
 
 app.use(cors({
-    origin: '*', // Allows all origins
+    origin: function (origin, callback) {
+        // Allow requests with no origin (like mobile apps or curl requests)
+        if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+            callback(null, true);
+        } else {
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-    credentials: true, // Allows cookies to be sent
+    credentials: true, // Allow cookies to be sent with requests
 }));
 
 // Connect to the database
 connectDB();
+
 // Init middleware
 app.use(express.json({ extended: false }));
 

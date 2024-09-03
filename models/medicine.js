@@ -27,6 +27,9 @@ const medicineSchema = new mongoose.Schema({
   image: {
     type: String
   },
+  rating: {
+    type: String
+  },
   createdAt: {
     type: Date,
     default: Date.now,

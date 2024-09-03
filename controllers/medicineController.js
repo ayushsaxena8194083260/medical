@@ -26,10 +26,10 @@ exports.getMedicineById = async (req, res) => {
 };
 
 exports.createMedicine = async (req, res) => {
-  const { name, decription, manufacturer, expirationDate, price, stock,image } = req.body;
+  const { name, decription, manufacturer, expirationDate, price, stock,image,rating } = req.body;
   try {
     const newMedicine = new Medicine({
-      name, decription, manufacturer, expirationDate, price, stock, image
+      name, decription, manufacturer, expirationDate, price, stock, image,rating
     });
 
     const medicine = await newMedicine.save();
@@ -50,7 +50,8 @@ exports.createMedicine = async (req, res) => {
 };
 
 exports.updateMedicine = async (req, res) => {
-  const { name, decription, manufacturer, expirationDate, price, stock } =
+  const { name, decription, manufacturer, expirationDate, price, image,
+    rating, stock } =
     req.body;
   const medicineFields = {
     name,
@@ -58,6 +59,8 @@ exports.updateMedicine = async (req, res) => {
     manufacturer,
     expirationDate,
     price,
+    image,
+    rating,
     stock,
   };
 
