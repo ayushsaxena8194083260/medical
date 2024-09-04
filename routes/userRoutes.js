@@ -10,6 +10,9 @@ const {
   logout,
   changePassword,
   getAllUsers,
+  addAddress,
+  deleteAddress,
+  updateAddress,
 } = require('../controllers/userController');
 
 router.get('/logout', authMiddleware, logout);
@@ -18,5 +21,7 @@ router.get('/:id', authMiddleware, roleMiddleware(['admin', 'user']), getUserDet
 router.put('/:id', authMiddleware, roleMiddleware(['admin', 'user']), updateUserDetails);
 router.delete('/:id', authMiddleware, roleMiddleware(['admin']), deleteUser);
 router.put('/change-password', authMiddleware, changePassword);
-
+router.post('/add-address', authMiddleware, addAddress);
+router.put('/update-address', authMiddleware, updateAddress);
+router.delete('/delete-address/:userId/:addressId', authMiddleware, deleteAddress);
 module.exports = router;

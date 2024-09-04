@@ -1,4 +1,5 @@
 // controllers/userController.js
+const Address = require("../models/address");
 const User = require("../models/user");
 const { addToBlacklist } = require("../utils/tokenBlacklist");
 
@@ -15,11 +16,14 @@ exports.getAllUsers = async (req, res) => {
 
 exports.getUserDetails = async (req, res) => {
   try {
-    const user = await User.findById(req.params.id).select("-password");
-    console.log(user.role);
+    const user = await User.findById(req.params.id)
+      .populate('addresses') // Populate the addresses field
+      .select("-password");  // Exclude the password field
+
     if (!user) {
       return res.status(404).json({ msg: "User not found" });
     }
+
     res.json(user);
   } catch (err) {
     console.error(err.message);
@@ -28,8 +32,8 @@ exports.getUserDetails = async (req, res) => {
 };
 
 exports.updateUserDetails = async (req, res) => {
-  const { name, email, role, address, pincode, city, shopName } = req.body;
-  const userFields = { name, email, role, address, pincode, city, shopName };
+  const { name, email, shopName } = req.body;
+  const userFields = { name, email, shopName };
 
   try {
     let user = await User.findById(req.params.id);
@@ -91,6 +95,83 @@ exports.changePassword = async (req, res) => {
     res.status(500).send("Server error");
   }
 };
+
+exports.addAddress = async (req, res) => {
+  const { userId, street, city, state, postalCode } = req.body;
+
+  try {
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ msg: 'User not found' });
+    }
+
+    const newAddress = new Address({
+      street,
+      city,
+      state,
+      postalCode,
+      user: userId,
+    });
+
+    const savedAddress = await newAddress.save();
+
+    user.addresses.push(savedAddress._id);
+    await user.save();
+
+    res.json(savedAddress);
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Server error');
+  }
+};
+
+exports.updateAddress = async (req, res) => {
+  const { addressId, street, city, state, postalCode } = req.body;
+
+  try {
+    let address = await Address.findById(addressId);
+    if (!address) {
+      return res.status(404).json({ msg: 'Address not found' });
+    }
+
+    address.street = street || address.street;
+    address.city = city || address.city;
+    address.state = state || address.state;
+    address.postalCode = postalCode || address.postalCode;
+
+    const updatedAddress = await address.save();
+
+    res.json(updatedAddress);
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Server error');
+  }
+};
+
+exports.deleteAddress = async (req, res) => {
+  const { addressId, userId } = req.params;
+
+  try {
+    const address = await Address.findById(addressId);
+    if (!address) {
+      return res.status(404).json({ msg: 'Address not found' });
+    }
+
+    await address.remove();
+
+    const user = await User.findByIdAndUpdate(
+      userId,
+      { $pull: { addresses: addressId } },
+      { new: true }
+    );
+
+    res.json({ msg: 'Address removed', addresses: user.addresses });
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Server error');
+  }
+};
+
 
 exports.logout = (req, res) => {
   const token = req.header("token");

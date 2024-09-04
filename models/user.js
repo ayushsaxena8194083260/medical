@@ -21,18 +21,7 @@ const UserSchema = new mongoose.Schema({
     enum: ['user', 'admin'],
     default: 'user',
   },
-  address: {
-    type: String,
-    required: true,
-  },
-  pincode: {
-    type: String,
-    required: true,
-  },
-  city: {
-    type: String,
-    required: true,
-  },
+  addresses: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Address' }], // Array of ObjectIds
   shopName: {
     type: String,
     required: true,
@@ -48,6 +37,4 @@ UserSchema.pre('save', async function (next) {
   next();
 });
 
-const User = mongoose.model('User', UserSchema);
-
-module.exports = User;
+module.exports = mongoose.model('User', UserSchema);
