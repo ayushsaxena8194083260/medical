@@ -6,6 +6,7 @@ const addressSchema = new mongoose.Schema({
   city: { type: String },
   state: { type: String },
   postalCode: { type: String },
+  phone: { type: String },
   user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' } // Reference to User
 });
 

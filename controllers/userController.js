@@ -78,14 +78,15 @@ exports.changePassword = async (req, res) => {
       return res.status(404).json({ msg: "User not found" });
     }
 
+    // Compare the current password with the stored password
     const isMatch = await bcrypt.compare(currentPassword, user.password);
 
     if (!isMatch) {
       return res.status(400).json({ msg: "Current password is incorrect" });
     }
 
-    const salt = await bcrypt.genSalt(10);
-    user.password = await bcrypt.hash(newPassword, salt);
+    // Directly set the new password from the frontend (assumed to be hashed)
+    user.password = newPassword;
 
     await user.save();
 

@@ -1,8 +1,6 @@
 // controllers/authController.js
 const User = require('../models/user');
 const Address = require('../models/address'); // Import the Address model
-
-const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
 exports.register = async (req, res) => {
@@ -15,18 +13,14 @@ exports.register = async (req, res) => {
       return res.status(400).json({ msg: 'User already exists' });
     }
 
-    // Create new user
+    // Create new user with password (already hashed from frontend)
     user = new User({
       name,
       email,
-      password,
+      password, // No need to hash since it's coming hashed from frontend
       role,
       shopName,
     });
-
-    // Hash the password before saving
-    const salt = await bcrypt.genSalt(10);
-    user.password = await bcrypt.hash(password, salt);
 
     // Save the user
     await user.save();
@@ -36,7 +30,7 @@ exports.register = async (req, res) => {
       const addressPromises = addresses.map(async (address) => {
         const newAddress = new Address({
           ...address,
-          user: user._id  // Link address to user
+          user: user._id, // Link address to user
         });
         const savedAddress = await newAddress.save();
         return savedAddress._id; // Return the ObjectId of the saved address
@@ -77,9 +71,8 @@ exports.login = async (req, res) => {
       return res.status(400).json({ msg: 'Invalid credentials' });
     }
 
-    // Check if the password matches
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) {
+    // Compare entered password with stored password directly (both should be hashed)
+    if (password !== user.password) {
       return res.status(400).json({ msg: 'Invalid credentials' });
     }
 
@@ -111,5 +104,3 @@ exports.login = async (req, res) => {
     res.status(500).send('Server error');
   }
 };
-
-
