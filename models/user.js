@@ -24,7 +24,6 @@ const UserSchema = new mongoose.Schema({
   addresses: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Address' }], // Array of ObjectIds
   shopName: {
     type: String,
-    required: true,
   },
 });
 

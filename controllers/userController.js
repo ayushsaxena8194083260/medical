@@ -98,7 +98,7 @@ exports.changePassword = async (req, res) => {
 };
 
 exports.addAddress = async (req, res) => {
-  const { userId, street, city, state, postalCode } = req.body;
+  const { userId,houseNo, street, city, state, postalCode } = req.body;
 
   try {
     const user = await User.findById(userId);
@@ -107,6 +107,7 @@ exports.addAddress = async (req, res) => {
     }
 
     const newAddress = new Address({
+      houseNo,
       street,
       city,
       state,
@@ -127,7 +128,7 @@ exports.addAddress = async (req, res) => {
 };
 
 exports.updateAddress = async (req, res) => {
-  const { addressId, street, city, state, postalCode } = req.body;
+  const { houseNo,addressId, street, city, state, postalCode } = req.body;
 
   try {
     let address = await Address.findById(addressId);
@@ -136,6 +137,7 @@ exports.updateAddress = async (req, res) => {
     }
 
     address.street = street || address.street;
+    address.houseNo = houseNo || address.houseNo;
     address.city = city || address.city;
     address.state = state || address.state;
     address.postalCode = postalCode || address.postalCode;

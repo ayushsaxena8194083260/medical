@@ -14,6 +14,7 @@ const {
   deleteAddress,
   updateAddress,
 } = require('../controllers/userController');
+const { sendOtp, verifyOtpAndChangePassword, forgotPassword } = require('../controllers/authController');
 
 router.get('/logout', authMiddleware, logout);
 router.get('/', authMiddleware, roleMiddleware(['admin']), getAllUsers);
@@ -24,4 +25,7 @@ router.put('/change-password', authMiddleware, changePassword);
 router.post('/add-address', authMiddleware, addAddress);
 router.put('/update-address', authMiddleware, updateAddress);
 router.delete('/delete-address/:userId/:addressId', authMiddleware, deleteAddress);
+router.post('/forgot-password', forgotPassword);
+router.post('/reset-password', verifyOtpAndChangePassword)
 module.exports = router;
+
