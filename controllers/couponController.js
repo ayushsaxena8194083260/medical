@@ -121,21 +121,30 @@ exports.getCouponById = async (req, res) => {
   exports.couponStatus = async (req, res) => {
     try {
       const couponId = req.params.id;
-      const { isActive } = req.body; 
+      const { isActive } = req.body;
+      
+      // Find the coupon by ID
       let coupon = await Coupon.findById(couponId);
   
       if (!coupon) {
         return res.status(404).json({ msg: 'Coupon not found' });
       }
   
+      // Update the coupon's isActive status
       coupon.isActive = isActive;
-  
       await coupon.save();
   
+      // Fetch all coupon data
+      const allCoupons = await Coupon.find();
+  
       const action = isActive ? 'activated' : 'deactivated';
-      res.status(200).json({ msg: `Coupon ${action} successfully`, coupon });
+      res.status(200).json({
+        msg: `Coupon ${action} successfully`,
+       allCoupons
+      });
     } catch (err) {
       console.error(err.message);
       res.status(500).json({ msg: 'Server error' });
     }
   };
+  

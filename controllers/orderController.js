@@ -63,13 +63,22 @@ exports.createOrder = async (req, res) => {
 
 exports.getOrders = async (req, res) => {
   try {
-    const orders = await Order.find().populate('user', 'name email').populate('items.product', 'name brand price');
+    // Find all orders and populate user and product details
+    const orders = await Order.find()
+      .populate('user', 'name email address phone')  // Populate user details
+      .populate({
+        path: 'items.product',
+        select: 'name brand price description category',  // Populate product details with additional fields
+      });
+
+    // Respond with the populated orders
     res.json(orders);
   } catch (err) {
     console.error(err.message);
     res.status(500).send('Server error');
   }
 };
+
 
 exports.getOrderById = async (req, res) => {
   try {
