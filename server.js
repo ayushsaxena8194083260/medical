@@ -8,6 +8,7 @@ const inventoryRoutes = require('./routes/inventoryRoutes');
 const cartRoutes = require('./routes/cartRoutes');
 const couponRoutes = require('./routes/couponRoutes');
 const messageRoutes = require('./routes/messageRoutes');
+const paymentRoutes = require('./routes/paymentRoutes');
 const cors = require('cors');  // Import CORS
 const dotenv = require('dotenv');
 
@@ -50,6 +51,7 @@ app.use('/api/inventory', inventoryRoutes);
 app.use('/api/cart', cartRoutes);
 app.use('/api/coupons', couponRoutes);
 app.use('/api/message', messageRoutes);
+app.use('/api/checkout', paymentRoutes);
 
 const PORT = process.env.PORT || 5000;
 
