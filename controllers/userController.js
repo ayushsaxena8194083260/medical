@@ -99,13 +99,13 @@ exports.changePassword = async (req, res) => {
 
 exports.addAddress = async (req, res) => {
   const { userId,houseNo, street, city, state, postalCode } = req.body;
-
+ 
   try {
     const user = await User.findById(userId);
     if (!user) {
-      return res.status(404).json({ msg: 'User not found' });
+      return res.status(404).json({ msg: "User not found" });
     }
-
+ 
     const newAddress = new Address({
       houseNo,
       street,
@@ -114,16 +114,16 @@ exports.addAddress = async (req, res) => {
       postalCode,
       user: userId,
     });
-
+ 
     const savedAddress = await newAddress.save();
-
+ 
     user.addresses.push(savedAddress._id);
     await user.save();
-
+ 
     res.json(savedAddress);
   } catch (err) {
     console.error(err.message);
-    res.status(500).send('Server error');
+    res.status(500).send("Server error");
   }
 };
 

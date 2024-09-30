@@ -23,7 +23,7 @@ router.put('/:id', authMiddleware, roleMiddleware(['admin', 'user']), updateUser
 router.delete('/:id', authMiddleware, roleMiddleware(['admin']), deleteUser);
 router.put('/change-password', authMiddleware, changePassword);
 router.post('/add-address', authMiddleware, addAddress);
-router.put('/update-address', authMiddleware, updateAddress);
+router.post('/update-address', authMiddleware, updateAddress);
 router.delete('/delete-address/:userId/:addressId', authMiddleware, deleteAddress);
 router.post('/forgot-password', forgotPassword);
 router.post('/reset-password', verifyOtpAndChangePassword)
