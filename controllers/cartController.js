@@ -5,28 +5,46 @@ const Medicine = require('../models/medicine');
 exports.addToCart = async (req, res) => {
   const { medicineId, quantity } = req.body;
   const userId = req.user.id;
+
   try {
+    // Find the user's cart
     let cart = await Cart.findOne({ user: userId });
 
+    // If no cart exists for the user, create a new one
     if (!cart) {
       cart = new Cart({ user: userId, items: [] });
     }
 
+    // Check if the medicine exists
     const medicine = await Medicine.findById(medicineId);
     if (!medicine) {
       return res.status(404).json({ msg: 'Product not found' });
     }
 
+    // Find if the item is already in the cart
     const itemIndex = cart.items.findIndex(item => item.product.toString() === medicineId);
 
     if (itemIndex > -1) {
+      // If item exists in cart, update its quantity
       cart.items[itemIndex].quantity += quantity;
     } else {
+      // Otherwise, add the new item to the cart
       cart.items.push({ product: medicineId, quantity });
     }
-    cart.totalAmount = cart.items.reduce((acc, item) => acc + item.quantity * medicine.price, 0);
 
+    // Recalculate the total by fetching the price for each medicine in the cart
+    cart.totalAmount = 0;
+    for (let i = 0; i < cart.items.length; i++) {
+      const item = cart.items[i];
+      const itemMedicine = await Medicine.findById(item.product);  // Fetch price of each medicine
+      if (itemMedicine) {
+        cart.totalAmount += item.quantity * itemMedicine.price;
+      }
+    }
+
+    // Save the updated cart
     await cart.save();
+
     res.json(cart);
   } catch (err) {
     console.error(err.message);
@@ -34,14 +52,14 @@ exports.addToCart = async (req, res) => {
   }
 };
 
+
 // Get cart items
 exports.getCart = async (req, res) => {
   const userId = req.user.id;
-
   try {
     const cart = await Cart.findOne({ user: userId }).populate('items.product');
     if (!cart) {
-      return res.status(404).json({ msg: 'Cart not found' });
+      return res.status(200).json({ msg: 'Cart is empty' });
     }
 
     res.json(cart);
@@ -52,24 +70,30 @@ exports.getCart = async (req, res) => {
 };
 
 // Remove item from cart
+// Remove item from cart
 exports.removeFromCart = async (req, res) => {
   const { medicalId } = req.params;
   const userId = req.user.id;
-console.log(medicalId);
+
   try {
-    let cart = await Cart.findOne({ user: userId });
+    // Find the cart for the user and populate the product details
+    let cart = await Cart.findOne({ user: userId }).populate('items.product');
+
     if (!cart) {
       return res.status(404).json({ msg: 'Cart not found' });
     }
 
-    const itemIndex = cart.items.findIndex(item => item.product.toString() === medicalId);
+    // Find the item index in the cart
+    const itemIndex = cart.items.findIndex(item => item.product._id.toString() === medicalId);
 
     if (itemIndex > -1) {
+      // Remove the item from the cart
       cart.items.splice(itemIndex, 1);
 
-      // Calculate the total amount
+      // Recalculate the total amount
       cart.totalAmount = cart.items.reduce((acc, item) => acc + item.quantity * item.product.price, 0);
 
+      // Save the updated cart
       await cart.save();
       res.json(cart);
     } else {

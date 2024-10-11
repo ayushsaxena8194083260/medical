@@ -1,8 +1,82 @@
 // controllers/orderController.js
+const Cart = require('../models/cart');
 const Medicine = require('../models/medicine');
 const Order = require('../models/orders');
 const User = require('../models/user');
+const Address = require('../models/address'); // Assuming you have an Address model
+
 const mongoose = require('mongoose');
+
+// controllers/orderController.js
+
+exports.addOrder = async (req, res) => {
+  const { userId, items, totalAmount, addressId } = req.body;
+
+  try {
+    // Validate the user
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ msg: 'User not found' });
+    }
+
+    // Validate address existence
+    const address = await Address.findById(addressId);
+    if (!address) {
+      return res.status(404).json({ msg: 'Address not found' });
+    }
+
+    // Validate medicines and calculate total amount
+    const orderMedicines = [];
+    let calculatedTotalAmount = 0;
+
+    for (const item of items) {
+      const medicine = await Medicine.findById(item.product); // Fetch medicine details using _id
+      if (!medicine) {
+        return res.status(404).json({ msg: `Medicine with ID ${item.product} not found` });
+      }
+
+      // Calculate total amount
+      calculatedTotalAmount += medicine.price * item.quantity;
+
+      // Add medicine details to order
+      orderMedicines.push({
+        product: medicine._id,
+        name: medicine.name,
+        manufacturer: medicine.manufacturer,
+        quantity: item.quantity,
+        price: medicine.price,
+      });
+    }
+
+    // Check if totalAmount matches the calculated total
+    if (totalAmount !== calculatedTotalAmount) {
+      return res.status(400).json({ msg: 'Total amount mismatch' });
+    }
+
+    // Create new order
+    const newOrder = new Order({
+      user: userId,
+      address: addressId, // Ensure this is correctly referenced
+      products: orderMedicines,
+      totalAmount: totalAmount,
+      status: 'pending',
+      items:items // Use a valid enum value
+    });
+
+    // Save the order
+    await newOrder.save();
+
+    // Clear the user's cart after placing the order
+    await Cart.findOneAndUpdate({ user: userId }, { items: [], totalAmount: 0 });
+
+    // Return order details
+    res.status(201).json({ msg: 'Order placed successfully', order: newOrder });
+
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Server error');
+  }
+};
 
 
 exports.createOrder = async (req, res) => {
@@ -52,14 +126,22 @@ exports.createOrder = async (req, res) => {
     });
 
     await order.save();
-
-    res.status(201).json(order);
+    clearCart(userId);
+    res.status(200).json(order);
   } catch (err) {
     console.error(err.message);
     res.status(500).send('Server error');
   }
 };
 
+const clearCart = async (userId) => {
+  try {
+    await Cart.deleteMany({ user: userId });
+    console.log('Cart cleared successfully');
+  } catch (error) {
+    console.error('Error clearing cart:', error);
+  }
+};
 
 exports.getOrders = async (req, res) => {
   try {

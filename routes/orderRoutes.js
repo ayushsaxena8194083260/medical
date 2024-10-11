@@ -9,9 +9,11 @@ const {
   getOrderById,
   updateOrderStatus,
   deleteOrder,
+  addOrder,
 } = require('../controllers/orderController');
 
 router.post('/', authMiddleware, createOrder);
+router.post('/add', authMiddleware, addOrder);
 router.get('/', authMiddleware, getOrders);
 router.get('/:id', authMiddleware, getOrderById);
 router.put('/:id/status', authMiddleware, roleMiddleware(['admin']), updateOrderStatus);
