@@ -161,10 +161,43 @@ exports.getOrders = async (req, res) => {
   }
 };
 
+exports.getOrderByOrderId = async (req, res) => {
+  const { orderId } = req.params;
+
+  try {
+    // Find the order by ID and populate user, address, and medicine details
+    const order = await Order.findById(orderId)
+      .populate({
+        path: 'user',
+        select: 'name email shopName', // Fetch user's name and email
+      })
+      .populate({
+        path: 'address',
+        select: 'houseNo street city state postalCode phone', // Fetch address details
+      })
+      .populate({
+        path: 'items.product',
+        select: 'name manufacturer price image', // Fetch product details for each item
+      });
+
+    if (!order) {
+      return res.status(404).json({ msg: 'Order not found' });
+    }
+
+    res.status(200).json(order);
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Server error');
+  }
+};
 
 exports.getOrderById = async (req, res) => {
   try {
-    const order = await Order.findById(req.params.id).populate('user', 'name email').populate('items.product', 'name brand price');
+    const order = await Order.findById(req.params.id).populate('user', 'name email ').populate('items.product', 'name manufacturer price image')
+    .populate({
+      path: 'address',
+      select: 'houseNo street city state postalCode phone', // Fetch address details
+    });;
     if (!order) {
       return res.status(404).json({ msg: 'Order not found' });
     }
