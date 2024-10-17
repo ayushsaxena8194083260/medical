@@ -7,50 +7,39 @@ exports.addToCart = async (req, res) => {
   const userId = req.user.id;
 
   try {
-    // Find the user's cart
     let cart = await Cart.findOne({ user: userId });
-
-    // If no cart exists for the user, create a new one
     if (!cart) {
       cart = new Cart({ user: userId, items: [] });
     }
 
-    // Check if the medicine exists
     const medicine = await Medicine.findById(medicineId);
     if (!medicine) {
       return res.status(404).json({ msg: 'Product not found' });
     }
 
-    // Find if the item is already in the cart
     const itemIndex = cart.items.findIndex(item => item.product.toString() === medicineId);
-
     if (itemIndex > -1) {
-      // If item exists in cart, update its quantity
       cart.items[itemIndex].quantity += quantity;
     } else {
-      // Otherwise, add the new item to the cart
       cart.items.push({ product: medicineId, quantity });
     }
 
-    // Recalculate the total by fetching the price for each medicine in the cart
-    cart.totalAmount = 0;
-    for (let i = 0; i < cart.items.length; i++) {
-      const item = cart.items[i];
-      const itemMedicine = await Medicine.findById(item.product);  // Fetch price of each medicine
-      if (itemMedicine) {
-        cart.totalAmount += item.quantity * itemMedicine.price;
-      }
-    }
+    const medicineIds = cart.items.map(item => item.product);
+    const medicines = await Medicine.find({ _id: { $in: medicineIds } });
 
-    // Save the updated cart
+    cart.totalAmount = cart.items.reduce((total, item) => {
+      const itemMedicine = medicines.find(med => med._id.toString() === item.product.toString());
+      return total + (itemMedicine ? itemMedicine.price * item.quantity : 0);
+    }, 0);
+
     await cart.save();
-
     res.json(cart);
   } catch (err) {
     console.error(err.message);
     res.status(500).send('Server error');
   }
 };
+
 
 
 // Get cart items
