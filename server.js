@@ -18,7 +18,7 @@ const app = express();
 
 // List of allowed origins
 const allowedOrigins = [
-    'http://localhost:5173', // Your React app's origin
+    'http://localhost:5173',
     'http://localhost:3000',
     'https://medical-api-git-main-ayush-saxenas-projects-03883bbf.vercel.app'
 ];
