@@ -20,7 +20,8 @@ const app = express();
 const allowedOrigins = [
     'http://localhost:5173',
     'http://localhost:3000',
-    'https://medical-api-git-main-ayush-saxenas-projects-03883bbf.vercel.app'
+    'https://medical-api-git-main-ayush-saxenas-projects-03883bbf.vercel.app',
+   ' https://medical-fvn6.onrender.com'
 ];
 
 app.use(cors({
